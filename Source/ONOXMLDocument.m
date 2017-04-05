@@ -723,12 +723,12 @@ static void ONOSetErrorFromXMLErrorPtr(NSError * __autoreleasing *error, xmlErro
 
 #pragma mark - NSObject
 
-
 - (NSString *)description {
     xmlBufferPtr buffer = xmlBufferCreate();
     xmlSaveCtxtPtr saveCtxtPtr = xmlSaveToBuffer(buffer,NULL, XML_SAVE_NO_EMPTY);
     if (xmlSaveTree(saveCtxtPtr, self.xmlNode) < 0) {
         xmlSaveClose(saveCtxtPtr);
+        xmlBufferFree(buffer);
         return nil;
     }
     xmlSaveClose(saveCtxtPtr);
@@ -737,7 +737,6 @@ static void ONOSetErrorFromXMLErrorPtr(NSError * __autoreleasing *error, xmlErro
     
     return rawXMLString;
 }
-
 
 - (BOOL)isEqual:(id)object {
     if (self == object) {
