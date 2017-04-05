@@ -26,6 +26,7 @@
 #import <libxml2/libxml/xpath.h>
 #import <libxml2/libxml/xpathInternals.h>
 #import <libxml2/libxml/HTMLparser.h>
+#import <libxml2/libxml/xmlsave.h>
 
 NSString * const ONOXMLDocumentErrorDomain = @"com.ono.error";
 
@@ -722,14 +723,21 @@ static void ONOSetErrorFromXMLErrorPtr(NSError * __autoreleasing *error, xmlErro
 
 #pragma mark - NSObject
 
+
 - (NSString *)description {
     xmlBufferPtr buffer = xmlBufferCreate();
-    xmlNodeDump(buffer, self.xmlNode->doc, self.xmlNode, 0, false);
+    xmlSaveCtxtPtr saveCtxtPtr = xmlSaveToBuffer(buffer,NULL, XML_SAVE_NO_EMPTY);
+    if (xmlSaveTree(saveCtxtPtr, self.xmlNode) < 0) {
+        xmlSaveClose(saveCtxtPtr);
+        return nil;
+    }
+    xmlSaveClose(saveCtxtPtr);
     NSString *rawXMLString = @((const char *)xmlBufferContent(buffer));
     xmlBufferFree(buffer);
-
+    
     return rawXMLString;
 }
+
 
 - (BOOL)isEqual:(id)object {
     if (self == object) {
